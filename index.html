@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CodeAlpha AI Suite</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Cabinet+Grotesk:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface2: #1a1a26;
+      --border: #2a2a3d;
+      --accent: #7c6ff7;
+      --accent2: #f76f8e;
+      --accent3: #6ff7c4;
+      --text: #e8e8f0;
+      --text-muted: #7a7a9a;
+      --glow: 0 0 40px rgba(124,111,247,0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cabinet Grotesk', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* BG mesh */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 20%, rgba(124,111,247,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 80% 80%, rgba(247,111,142,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 60% at 60% 10%, rgba(111,247,196,0.04) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.5rem;
+      height: 64px;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+    .logo span { color: var(--accent); }
+
+    .nav-tabs {
+      display: flex; gap: 0.25rem;
+    }
+    .nav-tab {
+      padding: 0.45rem 1.1rem;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.03em;
+    }
+    .nav-tab:hover { color: var(--text); background: var(--surface2); }
+    .nav-tab.active {
+      color: var(--accent);
+      background: rgba(124,111,247,0.12);
+    }
+
+    .badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      background: rgba(124,111,247,0.15);
+      color: var(--accent);
+      border: 1px solid rgba(124,111,247,0.3);
+      border-radius: 100px;
+      padding: 0.2rem 0.65rem;
+    }
+
+    /* HERO */
+    .hero {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 4rem 2rem 3rem;
+    }
+    .hero-tag {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent3);
+      border: 1px solid rgba(111,247,196,0.25);
+      border-radius: 100px;
+      padding: 0.3rem 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* PAGES */
+    .page { display: none; position: relative; z-index: 1; }
+    .page.active { display: block; }
+
+    /* ===== TASK 1: TRANSLATOR ===== */
+    .translator-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 4rem;
+    }
+
+    .lang-bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .lang-select-wrap {
+      flex: 1; min-width: 160px;
+    }
+    .lang-select-wrap label {
+      display: block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+    .lang-select {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.65rem 1rem;
+      border-radius: 10px;
+      font-family: 'Cabinet Grotesk', sans-serif;
+      font-size: 0.95rem;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a7a9a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      transition: border-color 0.2s;
+    }
+    .lang-select:focus { outline: none; border-color: var(--accent); }
+
+    .swap-btn {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      margin-top: 1.2rem;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .swap-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,111,247,0.1); }
+
+    .translator-panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media(max-width: 640px) { .translator-panels { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .panel:focus-within { border-color: rgba(124,111,247,0.5); }
+
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .panel-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .panel-actions { display: flex; gap: 0.4rem; }
+    .icon-btn {
+      width: 30px; height: 30px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .icon-btn:hover { background: var(--border); color: var(--text); }
+
+    textarea.panel-input {
+      width: 100%; min-height: 200px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: 'Cabinet Grotesk', sans-serif;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      padding: 1rem;
+      resize: vertical;
+    }
+    textarea.panel-input:focus { outline: none; }
+    textarea.panel-input::placeholder { color: var(--text-muted); }
+
+    .panel-output {
+      min-height: 200px;
+      padding: 1rem;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .panel-output.placeholder { color: var(--text-muted); font-style: italic; }
+
+    .char-count {
+      padding: 0.4rem 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-align: right;
+      border-top: 1px solid var(--border);
+    }
+
+    .translate-btn {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.9rem;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent), #9b8ff9);
+      color: white;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .translate-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(124,111,247,0.35); }
+    .translate-btn:active { transform: translateY(0); }
+    .translate-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .tts-bar {
+      display: flex; gap: 0.5rem;
+      margin-top: 0.75rem;
+      align-items: center;
+    }
+    .tts-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .tts-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+    .tts-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .status-msg {
+      margin-top: 0.75rem;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      display: none;
+    }
+    .status-msg.error { background: rgba(247,111,142,0.1); border: 1px solid rgba(247,111,142,0.3); color: var(--accent2); display: block; }
+    .status-msg.success { background: rgba(111,247,196,0.1); border: 1px solid rgba(111,247,196,0.3); color: var(--accent3); display: block; }
+
+    /* ===== TASK 2: CHATBOT ===== */
+    .chatbot-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 4rem;
+    }
+
+    .chat-window {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      height: 520px;
+    }
+
+    .chat-header {
+      padding: 1rem 1.25rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .bot-avatar {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .bot-info .name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .bot-info .status {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--accent3);
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent3);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .msg {
+      display: flex;
+      gap: 0.6rem;
+      max-width: 85%;
+      animation: fadeUp 0.3s ease;
+    }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+    }
+    .msg.bot .msg-avatar { background: linear-gradient(135deg, var(--accent), var(--accent2)); }
+    .msg.user .msg-avatar { background: var(--surface2); border: 1px solid var(--border); }
+
+    .msg-bubble {
+      padding: 0.65rem 0.9rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+    .msg.bot .msg-bubble {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-top-left-radius: 4px;
+    }
+    .msg.user .msg-bubble {
+      background: linear-gradient(135deg, var(--accent), #9b8ff9);
+      color: white;
+      border-top-right-radius: 4px;
+    }
+
+    .typing {
+      display: flex; gap: 4px; align-items: center;
+      padding: 0.65rem 0.9rem;
+    }
+    .typing span {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: bounce 1.2s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
+
+    .chat-input-area {
+      padding: 0.85rem;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 0.6rem;
+    }
+    .chat-input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 0.65rem 1rem;
+      font-family: 'Cabinet Grotesk', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+    .chat-input:focus { outline: none; border-color: var(--accent); }
+    .chat-input::placeholder { color: var(--text-muted); }
+
+    .send-btn {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent), #9b8ff9);
+      color: white;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .send-btn:hover { transform: scale(1.05); box-shadow: 0 4px 20px rgba(124,111,247,0.4); }
+
+    .suggested-qs {
+      display: flex; flex-wrap: wrap; gap: 0.4rem;
+      margin-top: 0.75rem;
+    }
+    .sq-btn {
+      padding: 0.4rem 0.85rem;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Cabinet Grotesk', sans-serif;
+    }
+    .sq-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,111,247,0.08); }
+
+    .faq-count {
+      margin-top: 0.75rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* FOOTER */
+    footer {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Code<span>Alpha</span> AI Suite</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('translate', this)">🌐 Translator</button>
+    <button class="nav-tab" onclick="switchTab('chatbot', this)">🤖 FAQ Bot</button>
+  </div>
+  <div class="badge">2 Tasks ✓</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">CodeAlpha Internship — AI Domain</div>
+  <h1>Two <em>AI-Powered</em><br/>Tools in One Place</h1>
+  <p>Language Translation &amp; FAQ Chatbot built with vanilla JS and free APIs — no backend required.</p>
+</div>
+
+<!-- ===== TASK 1: TRANSLATOR ===== -->
+<div id="page-translate" class="page active">
+  <div class="translator-wrap">
+
+    <div class="lang-bar">
+      <div class="lang-select-wrap">
+        <label>Source Language</label>
+        <select class="lang-select" id="srcLang">
+          <option value="auto">Auto Detect</option>
+          <option value="en">English</option>
+          <option value="hi">Hindi</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="zh">Chinese (Simplified)</option>
+          <option value="ar">Arabic</option>
+          <option value="pt">Portuguese</option>
+          <option value="ru">Russian</option>
+          <option value="ja">Japanese</option>
+          <option value="ko">Korean</option>
+          <option value="it">Italian</option>
+          <option value="tr">Turkish</option>
+          <option value="bn">Bengali</option>
+          <option value="ur">Urdu</option>
+          <option value="ta">Tamil</option>
+          <option value="te">Telugu</option>
+          <option value="mr">Marathi</option>
+          <option value="gu">Gujarati</option>
+          <option value="ml">Malayalam</option>
+          <option value="nl">Dutch</option>
+          <option value="pl">Polish</option>
+          <option value="sv">Swedish</option>
+          <option value="vi">Vietnamese</option>
+          <option value="id">Indonesian</option>
+        </select>
+      </div>
+
+      <button class="swap-btn" onclick="swapLangs()" title="Swap languages">⇄</button>
+
+      <div class="lang-select-wrap">
+        <label>Target Language</label>
+        <select class="lang-select" id="tgtLang">
+          <option value="hi">Hindi</option>
+          <option value="en">English</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="zh">Chinese (Simplified)</option>
+          <option value="ar">Arabic</option>
+          <option value="pt">Portuguese</option>
+          <option value="ru">Russian</option>
+          <option value="ja">Japanese</option>
+          <option value="ko">Korean</option>
+          <option value="it">Italian</option>
+          <option value="tr">Turkish</option>
+          <option value="bn">Bengali</option>
+          <option value="ur">Urdu</option>
+          <option value="ta">Tamil</option>
+          <option value="te">Telugu</option>
+          <option value="mr">Marathi</option>
+          <option value="gu">Gujarati</option>
+          <option value="ml">Malayalam</option>
+          <option value="nl">Dutch</option>
+          <option value="pl">Polish</option>
+          <option value="sv">Swedish</option>
+          <option value="vi">Vietnamese</option>
+          <option value="id">Indonesian</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="translator-panels">
+      <!-- INPUT -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-label">Input Text</span>
+          <div class="panel-actions">
+            <button class="icon-btn" onclick="clearInput()" title="Clear">✕</button>
+            <button class="icon-btn" onclick="pasteText()" title="Paste">📋</button>
+          </div>
+        </div>
+        <textarea class="panel-input" id="srcText" placeholder="Type or paste text here..." oninput="updateCharCount()"></textarea>
+        <div class="char-count"><span id="charCount">0</span> / 5000 characters</div>
+      </div>
+
+      <!-- OUTPUT -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-label">Translation</span>
+          <div class="panel-actions">
+            <button class="icon-btn" onclick="copyTranslation()" title="Copy" id="copyBtn">📋</button>
+          </div>
+        </div>
+        <div class="panel-output placeholder" id="tgtText">Translation will appear here...</div>
+      </div>
+    </div>
+
+    <button class="translate-btn" id="translateBtn" onclick="doTranslate()">
+      <div class="spinner" id="spinner"></div>
+      <span id="btnLabel">✦ Translate</span>
+    </button>
+
+    <div class="tts-bar">
+      <button class="tts-btn" id="ttsSourceBtn" onclick="speak('src')" disabled>🔊 Speak Source</button>
+      <button class="tts-btn" id="ttsTargetBtn" onclick="speak('tgt')" disabled>🔊 Speak Translation</button>
+    </div>
+
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+</div>
+
+<!-- ===== TASK 2: CHATBOT ===== -->
+<div id="page-chatbot" class="page">
+  <div class="chatbot-wrap">
+    <div class="chat-window">
+      <div class="chat-header">
+        <div class="bot-avatar">🤖</div>
+        <div class="bot-info">
+          <div class="name">CodeAlpha FAQ Bot</div>
+          <div class="status"><span class="dot"></span> Online — Powered by NLP</div>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <!-- Bot welcome -->
+        <div class="msg bot">
+          <div class="msg-avatar">🤖</div>
+          <div class="msg-bubble">
+            👋 Hello! I'm the CodeAlpha FAQ Bot. I can answer questions about internships, tasks, certificates, GitHub submissions, and more. Ask me anything!
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <input type="text" class="chat-input" id="chatInput" placeholder="Ask a question..." onkeydown="if(event.key==='Enter') sendMessage()"/>
+        <button class="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+
+    <div class="suggested-qs">
+      <button class="sq-btn" onclick="askFAQ(this)">How to get certificate?</button>
+      <button class="sq-btn" onclick="askFAQ(this)">What tasks are available?</button>
+      <button class="sq-btn" onclick="askFAQ(this)">How to submit on GitHub?</button>
+      <button class="sq-btn" onclick="askFAQ(this)">Internship duration?</button>
+      <button class="sq-btn" onclick="askFAQ(this)">What perks do I get?</button>
+      <button class="sq-btn" onclick="askFAQ(this)">Letter of recommendation?</button>
+    </div>
+
+    <div class="faq-count">📚 Knowledge base: 30+ FAQs loaded &nbsp;·&nbsp; NLP: cosine similarity matching</div>
+  </div>
+</div>
+
+<footer>
+  Built for <a href="#">CodeAlpha</a> AI Internship &nbsp;·&nbsp; Task 1: Language Translation &nbsp;·&nbsp; Task 2: FAQ Chatbot &nbsp;·&nbsp; by intern
+</footer>
+
+<script>
+/* ===================== TASK 1: TRANSLATION ===================== */
+let translatedText = '';
+
+function updateCharCount() {
+  const t = document.getElementById('srcText').value;
+  document.getElementById('charCount').textContent = t.length;
+  document.getElementById('ttsSourceBtn').disabled = t.length === 0;
+}
+
+function clearInput() {
+  document.getElementById('srcText').value = '';
+  document.getElementById('charCount').textContent = 0;
+  document.getElementById('tgsSourceBtn') && (document.getElementById('ttsSourceBtn').disabled = true);
+  setStatus('','');
+}
+
+async function pasteText() {
+  try {
+    const t = await navigator.clipboard.readText();
+    document.getElementById('srcText').value = t;
+    updateCharCount();
+  } catch(e) { alert('Paste manually (Ctrl+V)'); }
+}
+
+function swapLangs() {
+  const sl = document.getElementById('srcLang');
+  const tl = document.getElementById('tgtLang');
+  const sv = sl.value === 'auto' ? 'en' : sl.value;
+  const tv = tl.value;
+  // swap values
+  for(let o of sl.options) if(o.value === tv) { sl.value = tv; break; }
+  for(let o of tl.options) if(o.value === sv) { tl.value = sv; break; }
+  sl.value = tv; tl.value = sv;
+  // swap text
+  const src = document.getElementById('srcText');
+  const tgt = document.getElementById('tgtText');
+  if(translatedText) {
+    src.value = translatedText;
+    updateCharCount();
+  }
+}
+
+function setStatus(type, msg) {
+  const el = document.getElementById('statusMsg');
+  el.className = 'status-msg ' + type;
+  el.textContent = msg;
+}
+
+async function doTranslate() {
+  const text = document.getElementById('srcText').value.trim();
+  if(!text) { setStatus('error','⚠ Please enter some text to translate.'); return; }
+  if(text.length > 5000) { setStatus('error','⚠ Text too long. Max 5000 characters.'); return; }
+
+  const sl = document.getElementById('srcLang').value;
+  const tl = document.getElementById('tgtLang').value;
+  if(sl !== 'auto' && sl === tl) { setStatus('error','⚠ Source and target languages are the same.'); return; }
+
+  // UI: loading
+  document.getElementById('translateBtn').disabled = true;
+  document.getElementById('spinner').style.display = 'block';
+  document.getElementById('btnLabel').textContent = 'Translating...';
+  setStatus('','');
+
+  const tgtEl = document.getElementById('tgtText');
+  tgtEl.textContent = '';
+  tgtEl.classList.add('placeholder');
+
+  try {
+    // MyMemory free API — no key needed, 1000 words/day
+    const langPair = (sl === 'auto' ? 'en' : sl) + '|' + tl;
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langPair}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if(data.responseStatus === 200) {
+      translatedText = data.responseData.translatedText;
+      tgtEl.textContent = translatedText;
+      tgtEl.classList.remove('placeholder');
+      document.getElementById('ttsTargetBtn').disabled = false;
+      setStatus('success', `✓ Translated successfully`);
+    } else {
+      setStatus('error', '⚠ Translation failed: ' + (data.responseDetails || 'Unknown error'));
+    }
+  } catch(e) {
+    setStatus('error', '⚠ Network error. Check your connection.');
+  } finally {
+    document.getElementById('translateBtn').disabled = false;
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('btnLabel').textContent = '✦ Translate';
+  }
+}
+
+function copyTranslation() {
+  if(!translatedText) return;
+  navigator.clipboard.writeText(translatedText).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓';
+    setTimeout(() => btn.textContent = '📋', 1500);
+  });
+}
+
+function speak(which) {
+  const text = which === 'src'
+    ? document.getElementById('srcText').value
+    : translatedText;
+  const lang = which === 'src'
+    ? (document.getElementById('srcLang').value === 'auto' ? 'en' : document.getElementById('srcLang').value)
+    : document.getElementById('tgtLang').value;
+  if(!text) return;
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = lang;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utt);
+}
+
+/* ===================== TASK 2: CHATBOT ===================== */
+// FAQ Knowledge Base
+const FAQ_DB = [
+  { q: "How do I get a completion certificate?", a: "To receive your completion certificate (QR Verified), you must complete at least 2 or 3 tasks from your domain. Simply submitting 1 task is considered incomplete and no certificate will be issued." },
+  { q: "What is the minimum tasks required for certificate?", a: "You must complete a minimum of 2 or 3 tasks from the listed tasks in your domain to be eligible for the internship completion certificate." },
+  { q: "What tasks are available for AI domain?", a: "The AI domain has 4 tasks: 1) Language Translation Tool, 2) Chatbot for FAQs, 3) Music Generation with AI, and 4) Object Detection and Tracking. You need to complete any 2 or 3 of these." },
+  { q: "How to submit my project on GitHub?", a: "Upload your complete source code to GitHub in a repository named 'CodeAlpha_ProjectName'. Make sure it's public so evaluators can access it." },
+  { q: "What should I name my GitHub repository?", a: "Your GitHub repository should follow the naming convention: CodeAlpha_ProjectName — for example, CodeAlpha_TranslationTool or CodeAlpha_ChatBot." },
+  { q: "Do I need to post on LinkedIn?", a: "Yes! You need to: 1) Share your internship status on LinkedIn tagging @CodeAlpha, and 2) Post a video explanation of your project on LinkedIn with the GitHub repo link." },
+  { q: "What perks do I get from this internship?", a: "CodeAlpha internship perks include: Internship Offer Letter, Completion Certificate (QR Verified), Unique ID Certificate, Letter of Recommendation (based on performance), Job Opportunities / Placement Support, and Resume Building Support." },
+  { q: "Will I get a letter of recommendation?", a: "Yes, a Letter of Recommendation is available based on your performance during the internship. Complete your tasks well and on time to be eligible." },
+  { q: "How long is the internship?", a: "The internship tasks should be completed within the mentioned time frame provided in your offer letter. Make sure to finish within the deadline to receive your certificate." },
+  { q: "What is the submission form?", a: "After completing your tasks, you must submit your completed work using the official Submission Form provided by CodeAlpha. Include your GitHub link and LinkedIn post links." },
+  { q: "How to build a language translation tool?", a: "For Task 1, create a UI where users enter text and select source/target languages. Use a translation API like Google Translate or MyMemory API, send the text to it, and display the translated result. Optionally add copy or text-to-speech features." },
+  { q: "How to build a chatbot for FAQs?", a: "For Task 2, collect FAQs about a topic, preprocess the text using NLP techniques (tokenize, clean), match user questions using cosine similarity or intent matching, and display the best matching answer. Optionally create a simple chat UI." },
+  { q: "What is music generation with AI?", a: "Task 3 involves collecting MIDI music data, preprocessing it into note sequences using music21, building a deep learning model using RNNs like LSTM or GANs, training it, and converting generated sequences to MIDI for playback." },
+  { q: "How does object detection and tracking work?", a: "Task 4 involves setting up real-time video input using OpenCV or a webcam, using a pre-trained model like YOLO or Faster R-CNN to detect objects, drawing bounding boxes on each frame, and applying tracking algorithms like SORT or Deep SORT." },
+  { q: "What is cosine similarity?", a: "Cosine similarity is a metric used to measure how similar two text documents are, regardless of their size. It's calculated as the dot product of two vectors divided by the product of their magnitudes. It's used in the FAQ chatbot to match user questions." },
+  { q: "What NLP libraries should I use?", a: "For Task 2 (FAQ Chatbot), you can use NLP libraries like NLTK or SpaCy for text preprocessing tasks like tokenization, stop-word removal, and lemmatization." },
+  { q: "Can I submit only one task?", a: "No. Submitting only one task is considered incomplete and certificates will NOT be issued. You must complete at least 2 or 3 tasks from your domain." },
+  { q: "What video should I post on LinkedIn?", a: "Post a video explanation of your completed project on LinkedIn, showing how it works, its features, and include your GitHub repository link in the post description." },
+  { q: "Will I get job placement support?", a: "Yes! CodeAlpha provides Job Opportunities and Placement Support as one of the internship perks, along with Resume Building Support to help kickstart your career." },
+  { q: "What is YOLO?", a: "YOLO (You Only Look Once) is a real-time object detection algorithm used in Task 4. It processes entire images in one pass, making it very fast. You can use pre-trained YOLO models with OpenCV for object detection in video frames." },
+  { q: "Hello", a: "Hello! 👋 I'm the CodeAlpha FAQ Bot. I can help with questions about internship tasks, certificates, submissions, and more. What would you like to know?" },
+  { q: "Hi", a: "Hi there! 😊 How can I help you today? You can ask me about CodeAlpha internship tasks, certificate requirements, GitHub submission, or anything else related to the program." },
+  { q: "Thank you", a: "You're welcome! 😊 Feel free to ask if you have any more questions about the internship. Good luck with your tasks!" },
+  { q: "What is CodeAlpha?", a: "CodeAlpha is an internship program that provides students with real-world project experience in domains like AI, Web Development, and more. You get perks like certificates, LORs, and placement support." },
+  { q: "How to tag CodeAlpha on LinkedIn?", a: "When posting on LinkedIn, use @CodeAlpha in your post. Make sure your LinkedIn profile is set to public and include relevant hashtags like #CodeAlpha #Internship #AI." },
+  { q: "What programming language should I use?", a: "You can use Python for AI tasks (recommended). Python has excellent libraries for ML/AI like TensorFlow, PyTorch, NLTK, SpaCy, music21, and OpenCV that are used in the tasks." },
+  { q: "Is the certificate QR verified?", a: "Yes! The CodeAlpha Completion Certificate is QR Verified, meaning employers can scan the QR code to instantly verify the authenticity of your certificate." },
+  { q: "What is the Unique ID Certificate?", a: "The Unique ID Certificate is a credential with a unique identifier assigned specifically to you, confirming your participation and completion of the CodeAlpha internship program." },
+  { q: "How many tasks do I need to complete?", a: "You need to complete any 2 or 3 tasks out of the 4 listed in your domain. Completing only 1 task will not qualify you for the certificate." },
+  { q: "What APIs can I use for translation?", a: "For Task 1, you can use Google Translate API, Microsoft Translator, or free alternatives like MyMemory API (no key needed for basic usage) or LibreTranslate." }
+];
+
+// Simple NLP: tokenize + cosine similarity
+function tokenize(text) {
+  return text.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .split(/\s+/)
+    .filter(w => w.length > 1);
+}
+
+const STOP_WORDS = new Set(['i','me','my','the','a','an','is','it','in','on','at','to','do','be','of','and','or','for','not','this','that','how','what','when','where','who','will','can','does','are','was','were','have','has','would','could','should','with','from','about','by','as','no','yes','get','use','make','take','give','go','just','also','need']);
+
+function vectorize(tokens) {
+  const freq = {};
+  for(const t of tokens) {
+    if(!STOP_WORDS.has(t)) freq[t] = (freq[t]||0)+1;
+  }
+  return freq;
+}
+
+function cosineSim(a, b) {
+  const keysA = Object.keys(a), keysB = Object.keys(b);
+  if(!keysA.length || !keysB.length) return 0;
+  const allKeys = new Set([...keysA, ...keysB]);
+  let dot=0, magA=0, magB=0;
+  for(const k of allKeys) {
+    const va = a[k]||0, vb = b[k]||0;
+    dot += va*vb; magA += va*va; magB += vb*vb;
+  }
+  return dot / (Math.sqrt(magA)*Math.sqrt(magB)+1e-10);
+}
+
+function findBestAnswer(query) {
+  const qVec = vectorize(tokenize(query));
+  let best = null, bestScore = 0;
+  for(const item of FAQ_DB) {
+    const fVec = vectorize(tokenize(item.q));
+    const sim = cosineSim(qVec, fVec);
+    if(sim > bestScore) { bestScore = sim; best = item; }
+  }
+  if(bestScore > 0.12) return best.a;
+  // keyword fallback
+  const qLower = query.toLowerCase();
+  for(const item of FAQ_DB) {
+    const words = tokenize(item.q).filter(w=>!STOP_WORDS.has(w));
+    const matches = words.filter(w => qLower.includes(w));
+    if(matches.length >= 2) return item.a;
+  }
+  return "I'm not sure about that. Try asking about: certificate requirements, task descriptions, GitHub submission, LinkedIn posting, or internship perks. 😊";
+}
+
+function appendMsg(who, text) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `msg ${who}`;
+  div.innerHTML = `
+    <div class="msg-avatar">${who === 'bot' ? '🤖' : '👤'}</div>
+    <div class="msg-bubble">${text}</div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg bot'; div.id = 'typingIndicator';
+  div.innerHTML = `<div class="msg-avatar">🤖</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+function hideTyping() {
+  const el = document.getElementById('typingIndicator');
+  if(el) el.remove();
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+
+  appendMsg('user', text);
+  showTyping();
+
+  setTimeout(() => {
+    hideTyping();
+    const answer = findBestAnswer(text);
+    appendMsg('bot', answer);
+  }, 600 + Math.random()*400);
+}
+
+function askFAQ(btn) {
+  document.getElementById('chatInput').value = btn.textContent;
+  sendMessage();
+}
+
+/* ===================== TAB SWITCHING ===================== */
+function switchTab(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
