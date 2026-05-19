@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CodeAlpha – FAQ Chatbot | Task 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #f8f7f4;
+    --card: #ffffff;
+    --border: #e8e4dc;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+    --orange: #ea580c;
+    --text: #1c1917;
+    --muted: #78716c;
+    --bot-bg: #ffffff;
+    --user-bg: #2563eb;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* subtle dot pattern bg */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, #c7bfb0 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(248,247,244,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+    height: 58px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 0.7rem; }
+  .logo-box {
+    width: 34px; height: 34px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+  }
+  .logo-text {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .logo-text span { color: var(--accent); }
+  .topbar-tag {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.68rem;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid rgba(37,99,235,0.2);
+    border-radius: 100px;
+    padding: 0.2rem 0.7rem;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    position: relative; z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 2rem 1.25rem 3rem;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 1.25rem;
+    align-items: start;
+  }
+  @media(max-width:760px){ .layout{ grid-template-columns:1fr; } .sidebar{ display:none; } }
+
+  /* ── SIDEBAR ── */
+  .sidebar { display: flex; flex-direction: column; gap: 1rem; }
+
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .info-card h3 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.85rem;
+    font-family: 'Fira Code', monospace;
+  }
+
+  .nlp-steps { display: flex; flex-direction: column; gap: 0.5rem; }
+  .nlp-step {
+    display: flex; align-items: flex-start; gap: 0.6rem;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--text);
+  }
+  .step-num {
+    width: 20px; height: 20px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.6rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .stat-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.65rem 0.75rem;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Fira Code', monospace;
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-lbl {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .topic-list { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .topic-chip {
+    font-size: 0.73rem;
+    padding: 0.25rem 0.6rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: var(--muted);
+  }
+
+  /* ── CHAT AREA ── */
+  .chat-wrap { display: flex; flex-direction: column; gap: 1rem; }
+
+  .chat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Chat header */
+  .chat-head {
+    padding: 1rem 1.25rem;
+    background: var(--accent);
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .bot-ava {
+    width: 42px; height: 42px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    flex-shrink: 0;
+  }
+  .bot-name { font-weight: 700; color: white; font-size: 0.95rem; }
+  .bot-status {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.75);
+    display: flex; align-items: center; gap: 0.35rem;
+    margin-top: 0.1rem;
+  }
+  .pulse {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 6px #4ade80;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+
+  .head-right {
+    margin-left: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.62rem;
+    color: rgba(255,255,255,0.6);
+    text-align: right;
+    line-height: 1.5;
+  }
+
+  /* Messages */
+  .messages {
+    height: 430px;
+    overflow-y: auto;
+    padding: 1.25rem;
+    display: flex; flex-direction: column; gap: 1rem;
+    background: #fafaf9;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .msg-row { display: flex; gap: 0.6rem; animation: msgIn 0.3s ease; }
+  @keyframes msgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .msg-row.user { flex-direction: row-reverse; }
+
+  .ava {
+    width: 32px; height: 32px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; flex-shrink: 0; margin-top: 2px;
+  }
+  .msg-row.bot .ava { background: var(--accent); color: white; }
+  .msg-row.user .ava { background: var(--border); color: var(--muted); }
+
+  .msg-content { max-width: 80%; display: flex; flex-direction: column; gap: 0.3rem; }
+  .msg-row.user .msg-content { align-items: flex-end; }
+
+  .bubble {
+    padding: 0.75rem 1rem;
+    border-radius: 16px;
+    font-size: 0.875rem;
+    line-height: 1.65;
+    white-space: pre-wrap;
+  }
+  .msg-row.bot .bubble {
+    background: var(--bot-bg);
+    border: 1px solid var(--border);
+    border-top-left-radius: 4px;
+    color: var(--text);
+    box-shadow: var(--shadow);
+  }
+  .msg-row.user .bubble {
+    background: var(--user-bg);
+    color: white;
+    border-top-right-radius: 4px;
+  }
+  .msg-time {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    padding: 0 0.25rem;
+  }
+
+  /* confidence badge */
+  .conf-badge {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 100px;
+    border: 1px solid;
+    margin-top: 0.2rem;
+    width: fit-content;
+  }
+  .conf-high { background: var(--green-light); border-color: rgba(22,163,74,0.3); color: var(--green); }
+  .conf-mid  { background: #fff7ed; border-color: rgba(234,88,12,0.3); color: var(--orange); }
+
+  /* Typing */
+  .typing-row { display: flex; gap: 0.6rem; }
+  .typing-bubble {
+    background: var(--bot-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    border-top-left-radius: 4px;
+    padding: 0.75rem 1rem;
+    display: flex; gap: 5px; align-items: center;
+    box-shadow: var(--shadow);
+  }
+  .typing-bubble span {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--muted);
+    animation: typeBounce 1.3s infinite;
+  }
+  .typing-bubble span:nth-child(2){animation-delay:0.2s}
+  .typing-bubble span:nth-child(3){animation-delay:0.4s}
+  @keyframes typeBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+
+  /* Suggestions */
+  .suggestions {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--border);
+    background: var(--card);
+  }
+  .sug-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+  .sug-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .sug-btn {
+    padding: 0.38rem 0.85rem;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.77rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .sug-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+    transform: translateY(-1px);
+  }
+
+  /* Input */
+  .input-row {
+    display: flex; gap: 0.6rem;
+    padding: 0.9rem 1.25rem 1.25rem;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+  }
+  .chat-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 0.72rem 1rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.875rem;
+    color: var(--text);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .chat-input::placeholder { color: var(--muted); }
+  .chat-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    background: white;
+  }
+  .send-btn {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.35);
+  }
+  .send-btn:hover { background: #1d4ed8; transform: scale(1.05); }
+  .send-btn:active { transform: scale(0.97); }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-family: 'Fira Code', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+  footer span { color: var(--accent); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-box">🤖</div>
+    <div class="logo-text">Code<span>Alpha</span></div>
+    <div class="topbar-tag">Task 2 — FAQ Chatbot</div>
+  </div>
+  <div style="font-family:'Fira Code',monospace;font-size:0.65rem;color:var(--muted);">NLP · Cosine Similarity · Tokenization</div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <div class="info-card">
+      <h3>🧠 NLP Pipeline</h3>
+      <div class="nlp-steps">
+        <div class="nlp-step"><div class="step-num">1</div><div><strong>Tokenize</strong> — split user input into individual words</div></div>
+        <div class="nlp-step"><div class="step-num">2</div><div><strong>Clean</strong> — remove stop words, lowercase, strip punctuation</div></div>
+        <div class="nlp-step"><div class="step-num">3</div><div><strong>Vectorize</strong> — convert tokens to TF frequency vectors</div></div>
+        <div class="nlp-step"><div class="step-num">4</div><div><strong>Cosine Similarity</strong> — match against all FAQ questions</div></div>
+        <div class="nlp-step"><div class="step-num">5</div><div><strong>Return</strong> — display best matching answer</div></div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h3>📊 Knowledge Base</h3>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num">35</div><div class="stat-lbl">Total FAQs</div></div>
+        <div class="stat-box"><div class="stat-num" id="queryCount">0</div><div class="stat-lbl">Queries</div></div>
+        <div class="stat-box"><div class="stat-num" id="avgConf">—</div><div class="stat-lbl">Avg Match</div></div>
+        <div class="stat-box"><div class="stat-num">2-gram</div><div class="stat-lbl">NLP Order</div></div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h3>📚 Topics Covered</h3>
+      <div class="topic-list">
+        <span class="topic-chip">Certificate</span>
+        <span class="topic-chip">Tasks</span>
+        <span class="topic-chip">GitHub</span>
+        <span class="topic-chip">LinkedIn</span>
+        <span class="topic-chip">Perks</span>
+        <span class="topic-chip">LOR</span>
+        <span class="topic-chip">NLTK</span>
+        <span class="topic-chip">SpaCy</span>
+        <span class="topic-chip">YOLO</span>
+        <span class="topic-chip">LSTM</span>
+        <span class="topic-chip">API</span>
+        <span class="topic-chip">Submission</span>
+        <span class="topic-chip">Duration</span>
+        <span class="topic-chip">Placement</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat-wrap">
+    <div class="chat-card">
+
+      <!-- Header -->
+      <div class="chat-head">
+        <div class="bot-ava">🤖</div>
+        <div>
+          <div class="bot-name">CodeAlpha FAQ Assistant</div>
+          <div class="bot-status"><span class="pulse"></span>Online · NLP Active · 35 FAQs Loaded</div>
+        </div>
+        <div class="head-right">Cosine Similarity<br/>Matching Engine</div>
+      </div>
+
+      <!-- Messages -->
+      <div class="messages" id="messages">
+        <div class="msg-row bot">
+          <div class="ava">🤖</div>
+          <div class="msg-content">
+            <div class="bubble">👋 Hello! I'm the <strong>CodeAlpha FAQ Assistant</strong>.
+
+I can answer your questions about:
+• Internship tasks & certificate requirements
+• GitHub submission & LinkedIn posting
+• Perks, LOR, placement support
+• AI concepts used in the tasks
+
+Type your question or tap a suggestion below!</div>
+            <div class="msg-time">Just now</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggestions -->
+      <div class="suggestions">
+        <div class="sug-label">⚡ Suggested Questions</div>
+        <div class="sug-list">
+          <button class="sug-btn" onclick="quickAsk(this)">How to get certificate?</button>
+          <button class="sug-btn" onclick="quickAsk(this)">What tasks must I complete?</button>
+          <button class="sug-btn" onclick="quickAsk(this)">How to upload on GitHub?</button>
+          <button class="sug-btn" onclick="quickAsk(this)">What perks do I get?</button>
+          <button class="sug-btn" onclick="quickAsk(this)">Will I get LOR?</button>
+          <button class="sug-btn" onclick="quickAsk(this)">What is cosine similarity?</button>
+          <button class="sug-btn" onclick="quickAsk(this)">What is NLTK?</button>
+          <button class="sug-btn" onclick="quickAsk(this)">What is YOLO?</button>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="input-row">
+        <input class="chat-input" id="chatInput" type="text"
+          placeholder="Ask anything about the internship..."
+          onkeydown="if(event.key==='Enter') sendMsg()"/>
+        <button class="send-btn" onclick="sendMsg()">➤</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  CodeAlpha AI Internship &nbsp;·&nbsp; Task 2: Chatbot for FAQs &nbsp;·&nbsp;
+  Built by <span>pradeepthikanuri</span> &nbsp;·&nbsp;
+  Stack: HTML · CSS · JavaScript · NLP (Tokenization + Cosine Similarity)
+</footer>
+
+<script>
+// ════════════════════════════════════════════════
+//  FAQ KNOWLEDGE BASE  (35 entries)
+// ════════════════════════════════════════════════
+const FAQS = [
+  { q: "How do I get a completion certificate?", a: "To receive your Completion Certificate (QR Verified), you must complete at least 2 or 3 tasks from your domain.\n\n⚠️ Submitting only 1 task is INCOMPLETE — no certificate will be issued." },
+  { q: "How many tasks do I need to complete?", a: "You must complete any 2 or 3 tasks out of the 4 listed in your domain.\n\n✅ 2 tasks = eligible for certificate\n✅ 3 tasks = eligible + stronger LOR\n❌ 1 task = certificate NOT issued" },
+  { q: "What tasks are available in AI domain?", a: "The AI domain has 4 tasks:\n\n1️⃣ Language Translation Tool\n2️⃣ Chatbot for FAQs\n3️⃣ Music Generation with AI\n4️⃣ Object Detection and Tracking\n\nComplete any 2 or 3 of these." },
+  { q: "What are the internship perks?", a: "CodeAlpha internship perks include:\n\n✅ Internship Offer Letter\n✅ Completion Certificate (QR Verified)\n✅ Unique ID Certificate\n✅ Letter of Recommendation (performance-based)\n✅ Job Opportunities & Placement Support\n✅ Resume Building Support" },
+  { q: "Will I get a letter of recommendation?", a: "Yes! A Letter of Recommendation (LOR) is provided based on your performance.\n\nTo get a strong LOR:\n• Complete 3 tasks instead of 2\n• Submit before the deadline\n• Make your projects high quality\n• Post a good LinkedIn video" },
+  { q: "How to upload project on GitHub?", a: "Steps to upload on GitHub:\n\n1. Create a new repository named: CodeAlpha_ProjectName\n2. Set it to Public visibility\n3. Upload your project files\n4. Write a proper README.md\n5. Copy the repo URL for submission" },
+  { q: "What should I name my GitHub repository?", a: "Follow this naming convention:\nCodeAlpha_ProjectName\n\nExamples:\n• CodeAlpha_TranslationTool\n• CodeAlpha_ChatBot\n• CodeAlpha_MusicGenAI\n• CodeAlpha_ObjectDetection" },
+  { q: "Do I need to post on LinkedIn?", a: "Yes! LinkedIn posting is mandatory:\n\n1. Share your internship status tagging @CodeAlpha\n2. Post a VIDEO of your project with your GitHub link\n3. Use hashtags: #CodeAlpha #Internship #AI\n4. Make your post Public" },
+  { q: "What video should I post on LinkedIn?", a: "Record a short screen-recording video showing:\n• How your project works\n• All features demonstrated\n• Your GitHub repo link in the description\n• Tag @CodeAlpha in the post\n• Keep it 1-3 minutes" },
+  { q: "What is the submission form?", a: "After completing tasks, submit via the official CodeAlpha Submission Form.\n\nInclude in your submission:\n• Your GitHub repository link\n• Your LinkedIn post link\n• Your video link\n• Your internship details" },
+  { q: "What is the internship duration?", a: "Complete all assigned tasks within the time frame mentioned in your internship offer letter.\n\nTips:\n• Don't wait until the last day\n• Submit early for better evaluation\n• Check your offer letter for exact deadline" },
+  { q: "How to build a language translation tool?", a: "Task 1 - Language Translation Tool:\n\n1. Create a UI with text input & language selectors\n2. Use a Translation API (Google Translate / MyMemory)\n3. Send text to API via fetch()\n4. Display translated result\n5. Optional: Add copy button & text-to-speech" },
+  { q: "How to build a chatbot for FAQs?", a: "Task 2 - FAQ Chatbot:\n\n1. Collect FAQs about a topic\n2. Preprocess text (tokenize, remove stop words)\n3. Build TF vectors for each FAQ question\n4. Match user input using cosine similarity\n5. Return the best matching answer\n6. Optional: Build a chat UI" },
+  { q: "How to do music generation with AI?", a: "Task 3 - Music Generation:\n\n1. Collect MIDI music data (classical, jazz, etc.)\n2. Preprocess into note sequences using music21\n3. Build LSTM or GAN model using PyTorch/TensorFlow\n4. Train model to learn music patterns\n5. Generate new sequences & convert to MIDI/audio" },
+  { q: "How to do object detection and tracking?", a: "Task 4 - Object Detection:\n\n1. Set up video input (webcam or file) via OpenCV\n2. Load YOLO or Faster R-CNN pre-trained model\n3. Process each frame for object detection\n4. Draw bounding boxes with labels\n5. Apply SORT or Deep SORT tracking algorithm\n6. Display tracking IDs in real time" },
+  { q: "What is cosine similarity?", a: "Cosine Similarity is a metric that measures how similar two text documents are.\n\nFormula: cos(θ) = (A·B) / (|A| × |B|)\n\n• Returns value between 0 and 1\n• 1 = identical meaning\n• 0 = completely different\n• Used in this chatbot to match your question to the closest FAQ!" },
+  { q: "What is NLTK?", a: "NLTK (Natural Language Toolkit) is a Python library for NLP.\n\nUsed in Task 2 for:\n• Tokenization — split text into words\n• Stop word removal — remove 'the', 'is', 'a'\n• Stemming — reduce words to root form\n• Part-of-speech tagging\n\nInstall: pip install nltk" },
+  { q: "What is SpaCy?", a: "SpaCy is a fast industrial-strength NLP library for Python.\n\nUsed in Task 2 for:\n• Tokenization & lemmatization\n• Named Entity Recognition (NER)\n• Dependency parsing\n• Building fast NLP pipelines\n\nInstall: pip install spacy" },
+  { q: "What is YOLO?", a: "YOLO (You Only Look Once) is a real-time object detection algorithm.\n\nUsed in Task 4:\n• Processes entire image in ONE pass\n• Extremely fast — suitable for real-time video\n• Pre-trained on COCO dataset (80 object classes)\n• Works with OpenCV in Python\n\nVersions: YOLOv5, YOLOv8 are most popular" },
+  { q: "What is LSTM?", a: "LSTM (Long Short-Term Memory) is a type of Recurrent Neural Network (RNN).\n\nUsed in Task 3 (Music Generation):\n• Learns patterns in sequential data (music notes)\n• Has memory cells that remember long-term patterns\n• Ideal for generating music sequences\n• Implemented in TensorFlow or PyTorch" },
+  { q: "What APIs can I use for translation?", a: "Translation APIs for Task 1:\n\n🆓 Free options:\n• MyMemory API — no key needed\n• LibreTranslate — open source\n\n💰 Paid options:\n• Google Cloud Translation API\n• Microsoft Azure Translator\n• DeepL API\n\nRecommended for beginners: MyMemory (free, no signup)" },
+  { q: "What programming language should I use?", a: "Recommended programming language: Python 🐍\n\nKey libraries:\n• TensorFlow/PyTorch — deep learning\n• NLTK/SpaCy — NLP\n• music21 — music processing\n• OpenCV — computer vision\n• scikit-learn — ML algorithms\n\nFor web-only projects: HTML + CSS + JavaScript also works!" },
+  { q: "Is the certificate QR verified?", a: "Yes! The CodeAlpha Completion Certificate is QR Verified.\n\nThis means:\n• Each certificate has a unique QR code\n• Employers can scan it to verify authenticity\n• The certificate is linked to your unique ID\n• It's a credible, verifiable document" },
+  { q: "What is the unique ID certificate?", a: "The Unique ID Certificate is a special credential with a unique identifier assigned only to you.\n\nIt confirms:\n• Your participation in CodeAlpha internship\n• Your completion of required tasks\n• Your unique registration in the program\n\nUseful for your resume and LinkedIn profile." },
+  { q: "Will I get job placement support?", a: "Yes! CodeAlpha provides:\n\n✅ Job Opportunities — relevant job listings\n✅ Placement Support — career guidance\n✅ Resume Building Support — help improving your CV\n\nPerform well in your tasks for the best placement opportunities!" },
+  { q: "How to tag CodeAlpha on LinkedIn?", a: "To tag CodeAlpha on LinkedIn:\n\n1. Type @CodeAlpha in your post\n2. Select the CodeAlpha company page from dropdown\n3. Set post visibility to Public\n4. Add hashtags: #CodeAlpha #Internship #AI #Python\n5. Include your GitHub link in the description" },
+  { q: "What is Faster R-CNN?", a: "Faster R-CNN is an object detection algorithm used in Task 4.\n\n• More accurate than YOLO but slightly slower\n• Uses Region Proposal Networks (RPN)\n• Great for detecting small objects\n• Pre-trained models available in PyTorch\n\nChoose YOLO for speed, Faster R-CNN for accuracy." },
+  { q: "What is music21?", a: "music21 is a Python toolkit for analyzing and generating music.\n\nUsed in Task 3:\n• Parse MIDI files into note sequences\n• Extract pitch, duration, and rhythm data\n• Convert generated sequences back to MIDI\n• Supports various music formats\n\nInstall: pip install music21" },
+  { q: "What is OpenCV?", a: "OpenCV (Open Source Computer Vision) is a library for computer vision tasks.\n\nUsed in Task 4:\n• Capture video from webcam or file\n• Process video frames in real-time\n• Draw bounding boxes on detected objects\n• Display output with labels & tracking IDs\n\nInstall: pip install opencv-python" },
+  { q: "What is GAN?", a: "GAN (Generative Adversarial Network) is a deep learning model.\n\nUsed in Task 3 (Music Generation):\n• Two networks: Generator & Discriminator\n• Generator creates fake music sequences\n• Discriminator judges if they're real or fake\n• They compete, making the Generator better over time\n• Great for creative AI generation tasks" },
+  { q: "Can I submit only one task?", a: "❌ NO! Submitting only 1 task is considered INCOMPLETE.\n\nCertificates will NOT be issued for 1 task.\n\nYou MUST complete:\n• Minimum: 2 tasks\n• Recommended: 3 tasks (better LOR)\n\nPick tasks that match your skills and complete them before the deadline!" },
+  { q: "What is tokenization?", a: "Tokenization is the process of splitting text into individual words (tokens).\n\nExample:\n'How to get certificate?' →\n['How', 'to', 'get', 'certificate']\n\nUsed in Task 2 (FAQ Chatbot) as the first step of NLP preprocessing before matching user questions." },
+  { q: "What is intent matching?", a: "Intent matching identifies the purpose/intention behind a user's message.\n\nMethods used:\n• Cosine Similarity — finds most similar FAQ\n• Keyword matching — finds key terms\n• TF-IDF vectors — weighs important words\n\nThis chatbot uses Cosine Similarity for intent matching!" },
+  { q: "Hello hi hey greetings", a: "👋 Hello there! Welcome to the CodeAlpha FAQ Assistant!\n\nI can help you with:\n• Internship task requirements\n• Certificate & LOR information\n• GitHub submission steps\n• AI concepts & tools\n\nWhat would you like to know?" },
+  { q: "Thank you thanks bye goodbye", a: "You're welcome! 😊 Best of luck with your CodeAlpha internship!\n\nRemember:\n✅ Complete at least 2 tasks\n✅ Upload to GitHub\n✅ Post on LinkedIn with video\n✅ Submit via the Submission Form\n\nYou've got this! 🎉" }
+];
+
+// ════════════════════════════════════════════════
+//  NLP ENGINE
+// ════════════════════════════════════════════════
+const STOP_WORDS = new Set([
+  'i','me','my','we','our','you','your','he','his','she','her','it','its',
+  'they','them','their','what','which','who','this','that','these','those',
+  'am','is','are','was','were','be','been','have','has','had','do','does',
+  'did','will','would','could','should','may','might','can','need',
+  'a','an','the','and','or','but','if','in','on','at','to','for','of',
+  'with','by','from','as','into','about','than','not','no','just','also',
+  'how','get','use','make','go','tell','give','show','want','like','know'
+]);
+
+function tokenize(text) {
+  return text.toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(w => w.length > 1);
+}
+
+function buildVec(tokens) {
+  const v = {};
+  for (const t of tokens) {
+    if (!STOP_WORDS.has(t)) v[t] = (v[t] || 0) + 1;
+  }
+  return v;
+}
+
+function cosine(a, b) {
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+  let dot = 0, ma = 0, mb = 0;
+  for (const k of keys) {
+    const va = a[k]||0, vb = b[k]||0;
+    dot += va*vb; ma += va*va; mb += vb*vb;
+  }
+  return dot / (Math.sqrt(ma)*Math.sqrt(mb) + 1e-9);
+}
+
+let totalScore = 0, queryCount = 0;
+
+function findAnswer(query) {
+  const qVec = buildVec(tokenize(query));
+  let best = null, bestScore = 0;
+  for (const faq of FAQS) {
+    const score = cosine(qVec, buildVec(tokenize(faq.q)));
+    if (score > bestScore) { bestScore = score; best = faq; }
+  }
+  // keyword fallback
+  if (bestScore < 0.08) {
+    const ql = query.toLowerCase();
+    for (const faq of FAQS) {
+      const words = tokenize(faq.q).filter(w => !STOP_WORDS.has(w));
+      if (words.filter(w => ql.includes(w)).length >= 2) {
+        return { answer: faq.a, score: 0.5 };
+      }
+    }
+    return {
+      answer: "🤔 I'm not sure about that. Try asking about:\n• Certificate requirements\n• Task descriptions (1–4)\n• GitHub submission\n• LinkedIn posting\n• NLP concepts (NLTK, SpaCy, cosine similarity)\n• AI tools (YOLO, LSTM, GAN)",
+      score: 0
+    };
+  }
+  // Update stats
+  queryCount++;
+  totalScore += bestScore;
+  document.getElementById('queryCount').textContent = queryCount;
+  document.getElementById('avgConf').textContent = (totalScore/queryCount*100).toFixed(0)+'%';
+  return { answer: best.a, score: bestScore };
+}
+
+// ════════════════════════════════════════════════
+//  CHAT UI
+// ════════════════════════════════════════════════
+function getTime() {
+  return new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+}
+
+function addMsg(role, text, score) {
+  const container = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = `msg-row ${role}`;
+
+  const isHigh = score >= 0.3;
+  const confHTML = (role === 'bot' && score > 0)
+    ? `<div class="conf-badge ${isHigh?'conf-high':'conf-mid'}">
+        ${isHigh?'✓ High':'~ Medium'} match · ${(score*100).toFixed(0)}% confidence
+       </div>`
+    : '';
+
+  row.innerHTML = `
+    <div class="ava">${role==='bot'?'🤖':'👤'}</div>
+    <div class="msg-content">
+      <div class="bubble">${text.replace(/\n/g,'<br>')}</div>
+      ${confHTML}
+      <div class="msg-time">${getTime()}</div>
+    </div>
+  `;
+  container.appendChild(row);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  const container = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = 'typing-row'; row.id = 'typingRow';
+  row.innerHTML = `
+    <div class="ava" style="width:32px;height:32px;border-radius:10px;background:#2563eb;color:white;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;margin-top:2px;">🤖</div>
+    <div class="typing-bubble"><span></span><span></span><span></span></div>
+  `;
+  container.appendChild(row);
+  container.scrollTop = container.scrollHeight;
+}
+
+function hideTyping() {
+  const el = document.getElementById('typingRow');
+  if (el) el.remove();
+}
+
+function sendMsg() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  addMsg('user', text, 0);
+  showTyping();
+
+  setTimeout(() => {
+    hideTyping();
+    const { answer, score } = findAnswer(text);
+    addMsg('bot', answer, score);
+  }, 500 + Math.random()*400);
+}
+
+function quickAsk(btn) {
+  document.getElementById('chatInput').value = btn.textContent;
+  sendMsg();
+}
+</script>
+</body>
+</html>
