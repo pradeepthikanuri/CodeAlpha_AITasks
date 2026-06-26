@@ -804,40 +804,7 @@ function speak(which) {
   window.speechSynthesis.speak(utt);
 }
 
-/* ===================== TASK 2: CHATBOT ===================== */
-// FAQ Knowledge Base
-const FAQ_DB = [
-  { q: "How do I get a completion certificate?", a: "To receive your completion certificate (QR Verified), you must complete at least 2 or 3 tasks from your domain. Simply submitting 1 task is considered incomplete and no certificate will be issued." },
-  { q: "What is the minimum tasks required for certificate?", a: "You must complete a minimum of 2 or 3 tasks from the listed tasks in your domain to be eligible for the internship completion certificate." },
-  { q: "What tasks are available for AI domain?", a: "The AI domain has 4 tasks: 1) Language Translation Tool, 2) Chatbot for FAQs, 3) Music Generation with AI, and 4) Object Detection and Tracking. You need to complete any 2 or 3 of these." },
-  { q: "How to submit my project on GitHub?", a: "Upload your complete source code to GitHub in a repository named 'CodeAlpha_ProjectName'. Make sure it's public so evaluators can access it." },
-  { q: "What should I name my GitHub repository?", a: "Your GitHub repository should follow the naming convention: CodeAlpha_ProjectName — for example, CodeAlpha_TranslationTool or CodeAlpha_ChatBot." },
-  { q: "Do I need to post on LinkedIn?", a: "Yes! You need to: 1) Share your internship status on LinkedIn tagging @CodeAlpha, and 2) Post a video explanation of your project on LinkedIn with the GitHub repo link." },
-  { q: "What perks do I get from this internship?", a: "CodeAlpha internship perks include: Internship Offer Letter, Completion Certificate (QR Verified), Unique ID Certificate, Letter of Recommendation (based on performance), Job Opportunities / Placement Support, and Resume Building Support." },
-  { q: "Will I get a letter of recommendation?", a: "Yes, a Letter of Recommendation is available based on your performance during the internship. Complete your tasks well and on time to be eligible." },
-  { q: "How long is the internship?", a: "The internship tasks should be completed within the mentioned time frame provided in your offer letter. Make sure to finish within the deadline to receive your certificate." },
-  { q: "What is the submission form?", a: "After completing your tasks, you must submit your completed work using the official Submission Form provided by CodeAlpha. Include your GitHub link and LinkedIn post links." },
-  { q: "How to build a language translation tool?", a: "For Task 1, create a UI where users enter text and select source/target languages. Use a translation API like Google Translate or MyMemory API, send the text to it, and display the translated result. Optionally add copy or text-to-speech features." },
-  { q: "How to build a chatbot for FAQs?", a: "For Task 2, collect FAQs about a topic, preprocess the text using NLP techniques (tokenize, clean), match user questions using cosine similarity or intent matching, and display the best matching answer. Optionally create a simple chat UI." },
-  { q: "What is music generation with AI?", a: "Task 3 involves collecting MIDI music data, preprocessing it into note sequences using music21, building a deep learning model using RNNs like LSTM or GANs, training it, and converting generated sequences to MIDI for playback." },
-  { q: "How does object detection and tracking work?", a: "Task 4 involves setting up real-time video input using OpenCV or a webcam, using a pre-trained model like YOLO or Faster R-CNN to detect objects, drawing bounding boxes on each frame, and applying tracking algorithms like SORT or Deep SORT." },
-  { q: "What is cosine similarity?", a: "Cosine similarity is a metric used to measure how similar two text documents are, regardless of their size. It's calculated as the dot product of two vectors divided by the product of their magnitudes. It's used in the FAQ chatbot to match user questions." },
-  { q: "What NLP libraries should I use?", a: "For Task 2 (FAQ Chatbot), you can use NLP libraries like NLTK or SpaCy for text preprocessing tasks like tokenization, stop-word removal, and lemmatization." },
-  { q: "Can I submit only one task?", a: "No. Submitting only one task is considered incomplete and certificates will NOT be issued. You must complete at least 2 or 3 tasks from your domain." },
-  { q: "What video should I post on LinkedIn?", a: "Post a video explanation of your completed project on LinkedIn, showing how it works, its features, and include your GitHub repository link in the post description." },
-  { q: "Will I get job placement support?", a: "Yes! CodeAlpha provides Job Opportunities and Placement Support as one of the internship perks, along with Resume Building Support to help kickstart your career." },
-  { q: "What is YOLO?", a: "YOLO (You Only Look Once) is a real-time object detection algorithm used in Task 4. It processes entire images in one pass, making it very fast. You can use pre-trained YOLO models with OpenCV for object detection in video frames." },
-  { q: "Hello", a: "Hello! 👋 I'm the CodeAlpha FAQ Bot. I can help with questions about internship tasks, certificates, submissions, and more. What would you like to know?" },
-  { q: "Hi", a: "Hi there! 😊 How can I help you today? You can ask me about CodeAlpha internship tasks, certificate requirements, GitHub submission, or anything else related to the program." },
-  { q: "Thank you", a: "You're welcome! 😊 Feel free to ask if you have any more questions about the internship. Good luck with your tasks!" },
-  { q: "What is CodeAlpha?", a: "CodeAlpha is an internship program that provides students with real-world project experience in domains like AI, Web Development, and more. You get perks like certificates, LORs, and placement support." },
-  { q: "How to tag CodeAlpha on LinkedIn?", a: "When posting on LinkedIn, use @CodeAlpha in your post. Make sure your LinkedIn profile is set to public and include relevant hashtags like #CodeAlpha #Internship #AI." },
-  { q: "What programming language should I use?", a: "You can use Python for AI tasks (recommended). Python has excellent libraries for ML/AI like TensorFlow, PyTorch, NLTK, SpaCy, music21, and OpenCV that are used in the tasks." },
-  { q: "Is the certificate QR verified?", a: "Yes! The CodeAlpha Completion Certificate is QR Verified, meaning employers can scan the QR code to instantly verify the authenticity of your certificate." },
-  { q: "What is the Unique ID Certificate?", a: "The Unique ID Certificate is a credential with a unique identifier assigned specifically to you, confirming your participation and completion of the CodeAlpha internship program." },
-  { q: "How many tasks do I need to complete?", a: "You need to complete any 2 or 3 tasks out of the 4 listed in your domain. Completing only 1 task will not qualify you for the certificate." },
-  { q: "What APIs can I use for translation?", a: "For Task 1, you can use Google Translate API, Microsoft Translator, or free alternatives like MyMemory API (no key needed for basic usage) or LibreTranslate." }
-];
+
 
 // Simple NLP: tokenize + cosine similarity
 function tokenize(text) {
