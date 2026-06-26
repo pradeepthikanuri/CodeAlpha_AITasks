@@ -84,20 +84,7 @@ CodeAlpha_AITasks/
 - Suggested question chips
 - Real-time cosine similarity matching
 
----
 
-## 📤 Submission Details
 
-- **GitHub Repo**: `CodeAlpha_AITasks`
-- **Tasks Completed**: Task 1 + Task 2 (2 out of 4)
-- **Domain**: Artificial Intelligence
-- **LinkedIn**: [Post with video demo + repo link]
 
----
 
-## 🙏 Acknowledgements
-
-- [CodeAlpha](https://codealpha.tech) for the internship opportunity
-- [MyMemory API](https://mymemory.translated.net/) for free translation
-- Web Speech API for text-to-speech functionality
-- 
