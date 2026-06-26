@@ -72,7 +72,7 @@ CodeAlpha_AITasks/
 
 ---
 
-## 📸 Screenshots
+## ✨ important note
 
 ### Translation Tool
 - Multi-language selector with 25+ languages
